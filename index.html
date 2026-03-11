@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurboTweak — PC Optimization Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #04050a;
+    --panel:   #080c12;
+    --card:    #0c1118;
+    --card2:   #111820;
+    --border:  #162030;
+    --border2: #1e3050;
+    --accent:  #00d4aa;
+    --accent2: #00ffcc;
+    --red:     #ff3355;
+    --amber:   #ffaa00;
+    --blue:    #38bdf8;
+    --purple:  #a78bfa;
+    --text:    #e8edf8;
+    --text2:   #6a7a90;
+    --muted:   #2a3545;
+    --dark:    #020308;
+    --glow:    #00d4aa20;
+    --glow2:   #00d4aa08;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,170,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Radial glow center */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(0,212,170,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NOISE TEXTURE ── */
+  .noise {
+    position: fixed;
+    inset: 0;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  section, nav, footer { position: relative; z-index: 2; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 64px;
+    background: rgba(4,5,10,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    z-index: 100;
+  }
+
+  nav::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .nav-logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px;
+    color: var(--dark);
+    font-weight: bold;
+    clip-path: polygon(10% 0%, 90% 0%, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0% 90%, 0% 10%);
+  }
+
+  .nav-logo-text {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 2px;
+  }
+
+  .nav-logo-text span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--accent); }
+
+  .nav-dl-btn {
+    background: var(--accent);
+    color: var(--dark) !important;
+    padding: 8px 20px;
+    font-weight: 700 !important;
+    clip-path: polygon(8px 0%, 100% 0%, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0% 100%, 0% 8px);
+    transition: background 0.2s, color 0.2s !important;
+  }
+  .nav-dl-btn:hover {
+    background: var(--text) !important;
+    color: var(--dark) !important;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,170,0.08);
+    border: 1px solid rgba(0,212,170,0.25);
+    padding: 6px 18px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-badge::before {
+    content: '●';
+    font-size: 8px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -2px;
+    margin-bottom: 8px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .hero-title .line1 { color: var(--text); }
+  .hero-title .line2 {
+    color: var(--accent);
+    text-shadow: 0 0 60px rgba(0,212,170,0.5), 0 0 120px rgba(0,212,170,0.2);
+  }
+
+  .hero-sub {
+    font-size: clamp(16px, 2.5vw, 22px);
+    color: var(--text2);
+    max-width: 600px;
+    margin: 24px auto 0;
+    font-weight: 500;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+
+  .hero-sub strong { color: var(--text); }
+
+  /* Stats row */
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin: 48px 0;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+
+  .hero-stat-lbl {
+    font-size: 12px;
+    color: var(--text2);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .hero-stat-div {
+    width: 1px;
+    background: var(--border2);
+    align-self: stretch;
+  }
+
+  /* CTA buttons */
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent);
+    color: var(--dark);
+    padding: 16px 36px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    clip-path: polygon(12px 0%, 100% 0%, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0% 100%, 0% 12px);
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: var(--text);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px rgba(0,212,170,0.3);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--text2);
+    padding: 15px 32px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid var(--border2);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+    animation: fadeUp 1s ease 1s both;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; height: 30px; }
+    50% { opacity: 1; height: 50px; }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION COMMON ── */
+  section {
+    padding: 100px 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
+  .section-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-tag::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .section-title span { color: var(--accent); }
+
+  .section-sub {
+    font-size: 17px;
+    color: var(--text2);
+    max-width: 560px;
+    font-weight: 500;
+  }
+
+  /* ── FEATURES GRID ── */
+  .features {
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 64px;
+    background: var(--border);
+  }
+
+  .feat-card {
+    background: var(--card);
+    padding: 36px 32px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s;
+  }
+
+  .feat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .feat-card:hover { background: var(--card2); }
+  .feat-card:hover::before { transform: scaleX(1); }
+
+  .feat-icon {
+    font-size: 32px;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .feat-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+
+  .feat-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+    font-weight: 500;
+  }
+
+  .feat-count {
+    position: absolute;
+    top: 28px; right: 28px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ── TWEAKS SHOWCASE ── */
+  .tweaks-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    margin-top: 64px;
+  }
+
+  .tweaks-row.reverse { direction: rtl; }
+  .tweaks-row.reverse > * { direction: ltr; }
+
+  .tweak-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .tweak-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 20px;
+    background: var(--card);
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .tweak-item:hover {
+    background: var(--card2);
+    border-left-color: var(--accent);
+  }
+
+  .tweak-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 0;
+    white-space: nowrap;
+    margin-top: 2px;
+    flex-shrink: 0;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .badge-extreme { background: rgba(255,51,85,0.15); color: #ff3355; }
+  .badge-high    { background: rgba(0,212,170,0.12); color: #00d4aa; }
+  .badge-medium  { background: rgba(255,170,0,0.12); color: #ffaa00; }
+  .badge-low     { background: rgba(56,189,248,0.12); color: #38bdf8; }
+
+  .tweak-info {}
+  .tweak-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+
+  .tweak-detail {
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+
+  .showcase-visual {
+    position: relative;
+  }
+
+  .showcase-window {
+    background: var(--card);
+    border: 1px solid var(--border2);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .showcase-window::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,212,170,0.03) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .win-titlebar {
+    background: var(--panel);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .win-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+
+  .win-dot-r { background: #ff5f57; }
+  .win-dot-y { background: #ffbd2e; }
+  .win-dot-g { background: #28c840; }
+
+  .win-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    margin-left: 8px;
+    letter-spacing: 1px;
+  }
+
+  .win-body { padding: 20px; }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .stat-box {
+    background: var(--card2);
+    padding: 14px;
+    border-top: 2px solid var(--accent);
+  }
+
+  .stat-box.amber { border-top-color: var(--amber); }
+  .stat-box.blue  { border-top-color: var(--blue); }
+  .stat-box.red   { border-top-color: var(--red); }
+
+  .stat-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-box.amber .stat-val { color: var(--amber); }
+  .stat-box.blue  .stat-val { color: var(--blue); }
+  .stat-box.red   .stat-val { color: var(--red); }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .fake-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--card2);
+    margin-bottom: 4px;
+    border-left: 2px solid var(--accent);
+  }
+
+  .fake-toggle-row.off { border-left-color: var(--muted); }
+
+  .fake-toggle-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .fake-toggle-row.off .fake-toggle-name { color: var(--text2); }
+
+  .fake-pill {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    background: var(--accent);
+    color: var(--dark);
+    font-weight: 700;
+  }
+
+  .fake-pill.off {
+    background: var(--muted);
+    color: var(--text2);
+  }
+
+  /* ── GAMING SECTION ── */
+  .gaming {
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .gaming-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .game-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .game-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--amber), transparent);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+
+  .game-card:hover { border-color: var(--border2); transform: translateY(-4px); }
+  .game-card:hover::after { transform: scaleX(1); }
+
+  .game-card-icon { font-size: 28px; margin-bottom: 16px; display: block; }
+  .game-card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .game-card-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .game-card-tag {
+    display: inline-block;
+    margin-top: 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--amber);
+    border: 1px solid rgba(255,170,0,0.3);
+    padding: 3px 10px;
+    letter-spacing: 1px;
+  }
+
+  /* ── INSTALL STEPS ── */
+  .install-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin-top: 64px;
+    background: var(--border);
+  }
+
+  .step {
+    background: var(--card);
+    padding: 36px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s;
+  }
+
+  .step:hover { background: var(--card2); }
+
+  .step-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--glow);
+    color: rgba(0,212,170,0.08);
+    line-height: 1;
+    margin-bottom: 16px;
+    -webkit-text-stroke: 1px rgba(0,212,170,0.15);
+  }
+
+  .step-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .step-code {
+    display: block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--dark);
+    padding: 8px 12px;
+    margin-top: 12px;
+    border-left: 2px solid var(--accent);
+    letter-spacing: 0.5px;
+  }
+
+  .step-arrow {
+    position: absolute;
+    right: -1px; top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-left: 12px solid var(--card);
+    z-index: 5;
+  }
+
+  .step:last-child .step-arrow { display: none; }
+
+  /* ── DOWNLOAD SECTION ── */
+  .download {
+    text-align: center;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .download::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,170,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .download-box {
+    display: inline-block;
+    border: 1px solid var(--border2);
+    padding: 64px 80px;
+    position: relative;
+    background: var(--card);
+  }
+
+  /* Corner decorations */
+  .download-box::before,
+  .download-box::after {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    border-color: var(--accent);
+    border-style: solid;
+  }
+
+  .download-box::before {
+    top: -1px; left: -1px;
+    border-width: 2px 0 0 2px;
+  }
+
+  .download-box::after {
+    bottom: -1px; right: -1px;
+    border-width: 0 2px 2px 0;
+  }
+
+  .dl-icon {
+    font-size: 56px;
+    margin-bottom: 24px;
+    display: block;
+    filter: drop-shadow(0 0 20px rgba(0,212,170,0.4));
+  }
+
+  .dl-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .dl-sub {
+    color: var(--text2);
+    margin-bottom: 40px;
+    font-size: 16px;
+  }
+
+  .dl-meta {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    margin-top: 32px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 1px;
+  }
+
+  .dl-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dl-meta .dot { color: var(--accent); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--dark);
+  }
+
+  .footer-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text2);
+    letter-spacing: 2px;
+  }
+
+  .footer-logo span { color: var(--accent); }
+
+  .footer-warn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  .footer-copy {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* ── ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Animated counter */
+  @keyframes countUp {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* Scan line effect on hover */
+  .scan-hover {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scan-hover::after {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(to bottom, transparent, rgba(0,212,170,0.04), transparent);
+    transition: top 0.6s ease;
+    pointer-events: none;
+  }
+
+  .scan-hover:hover::after { top: 150%; }
+
+  /* Glitch text effect for hero */
+  .glitch {
+    position: relative;
+  }
+
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    font-family: 'Orbitron', monospace;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  .glitch::before {
+    color: #ff3355;
+    clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
+    transform: translateX(-2px);
+    animation: glitch1 4s infinite step-start;
+  }
+
+  .glitch::after {
+    color: #38bdf8;
+    clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+    transform: translateX(2px);
+    animation: glitch2 4s infinite step-start;
+  }
+
+  @keyframes glitch1 {
+    0%, 92%, 100% { opacity: 0; }
+    93%, 95% { opacity: 0.6; transform: translateX(-3px); }
+    94% { opacity: 0.3; transform: translateX(3px); }
+  }
+
+  @keyframes glitch2 {
+    0%, 94%, 100% { opacity: 0; }
+    95%, 97% { opacity: 0.6; transform: translateX(3px); }
+    96% { opacity: 0.3; transform: translateX(-3px); }
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    .container { padding: 0 24px; }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .tweaks-row { grid-template-columns: 1fr; gap: 32px; }
+    .tweaks-row.reverse { direction: ltr; }
+    .install-steps { grid-template-columns: 1fr 1fr; }
+    .gaming-grid { grid-template-columns: 1fr; }
+    .download-box { padding: 40px 32px; }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+  }
+
+  @media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 20px; }
+    .hero-cta { flex-direction: column; }
+    .install-steps { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">◈</div>
+    <span class="nav-logo-text">TURBO<span>TWEAK</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#tweaks">Tweaks</a></li>
+    <li><a href="#gaming">Gaming</a></li>
+    <li><a href="#install">Install</a></li>
+    <li><a href="#download" class="nav-dl-btn">DOWNLOAD</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-badge">FREE WINDOWS OPTIMIZATION TOOL</div>
+
+  <h1 class="hero-title">
+    <div class="line1">MAKE YOUR PC</div>
+    <div class="line2 glitch" data-text="FASTER">FASTER</div>
+  </h1>
+
+  <p class="hero-sub">
+    <strong>50+ tweaks</strong> for performance, gaming, privacy and network —
+    all explained in plain English. No bloatware. No subscriptions. Just speed.
+  </p>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="hero-stat-num" data-target="50">0</span>
+      <span class="hero-stat-lbl">Tweaks</span>
+    </div>
+    <div class="hero-stat-div"></div>
+    <div class="hero-stat">
+      <span class="hero-stat-num" data-target="8">0</span>
+      <span class="hero-stat-lbl">Categories</span>
+    </div>
+    <div class="hero-stat-div"></div>
+    <div class="hero-stat">
+      <span class="hero-stat-num" data-target="200">0</span>
+      <span class="hero-stat-lbl">Max APS</span>
+    </div>
+    <div class="hero-stat-div"></div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">FREE</span>
+      <span class="hero-stat-lbl">Always</span>
+    </div>
+  </div>
+
+  <div class="hero-cta">
+    <a href="#download" class="btn-primary">
+      ⬇ DOWNLOAD NOW
+    </a>
+    <a href="#features" class="btn-secondary">
+      SEE FEATURES →
+    </a>
+  </div>
+
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    SCROLL
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-tag">What it does</div>
+      <h2 class="section-title">Everything Your PC<br><span>Was Missing</span></h2>
+      <p class="section-sub">TurboTweak fixes the stuff Windows gets wrong out of the box — all in one app.</p>
+    </div>
+
+    <div class="features-grid reveal">
+      <div class="feat-card scan-hover">
+        <span class="feat-count">01</span>
+        <span class="feat-icon">⚡</span>
+        <div class="feat-title">PERFORMANCE</div>
+        <p class="feat-desc">Unlock the hidden Ultimate Performance power plan, disable CPU core parking, set timer resolution to 1ms, and keep the Windows kernel in RAM. Your CPU runs at full power, zero delays.</p>
+      </div>
+      <div class="feat-card scan-hover">
+        <span class="feat-count">02</span>
+        <span class="feat-icon">🎮</span>
+        <div class="feat-title">GAMING</div>
+        <p class="feat-desc">Kill Xbox Game Bar, fix fullscreen stuttering, max GPU priority, disable mouse acceleration for raw input, and remove the network throttle Windows puts on games. Lower ping. More FPS.</p>
+      </div>
+      <div class="feat-card scan-hover">
+        <span class="feat-count">03</span>
+        <span class="feat-icon">🔒</span>
+        <div class="feat-title">PRIVACY</div>
+        <p class="feat-desc">Stop Microsoft from watching everything you do. Kill telemetry, Cortana, advertising ID, activity history, and block tracking domains at the OS level through your hosts file.</p>
+      </div>
+      <div class="feat-card scan-hover">
+        <span class="feat-count">04</span>
+        <span class="feat-icon">🌐</span>
+        <div class="feat-title">NETWORK</div>
+        <p class="feat-desc">Enable TCP auto-tuning, remove the hidden 20% bandwidth cap, switch to Cloudflare DNS for faster browsing, and optimize your network adapter receive buffers.</p>
+      </div>
+      <div class="feat-card scan-hover">
+        <span class="feat-count">05</span>
+        <span class="feat-icon">🎨</span>
+        <div class="feat-title">VISUAL & UI</div>
+        <p class="feat-desc">Remove all window animations and transparency. Restore the classic right-click menu. Show file extensions. Ditch Widgets, search ads, and taskbar clutter. Windows how it should be.</p>
+      </div>
+      <div class="feat-card scan-hover">
+        <span class="feat-count">06</span>
+        <span class="feat-icon">🎮</span>
+        <div class="feat-title">FORTNITE MACROS</div>
+        <p class="feat-desc">Dedicated edit macros, build macros, drag click, and scroll macros tuned for Fortnite. Up to 200 APS with jitter mode, profiles, and an emergency stop key.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TWEAKS SHOWCASE ── -->
+<section id="tweaks">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-tag">Deep dive</div>
+      <h2 class="section-title">Every Tweak <span>Explained</span></h2>
+      <p class="section-sub">Every single tweak tells you exactly what it does before you touch it. No mystery, no guesswork.</p>
+    </div>
+
+    <div class="tweaks-row reveal">
+      <div class="tweak-list">
+        <div class="tweak-item">
+          <span class="tweak-badge badge-extreme">EXTREME</span>
+          <div class="tweak-info">
+            <div class="tweak-name">Ultimate Performance Power Plan</div>
+            <div class="tweak-detail">Unlocks a hidden Windows power plan that removes ALL micro-delays in CPU performance. Your CPU runs at full speed all the time.</div>
+          </div>
+        </div>
+        <div class="tweak-item">
+          <span class="tweak-badge badge-extreme">EXTREME</span>
+          <div class="tweak-info">
+            <div class="tweak-name">Disable CPU Core Parking</div>
+            <div class="tweak-detail">Stops Windows from powering down idle CPU cores. Eliminates sudden latency spikes when cores spin back up mid-game.</div>
+          </div>
+        </div>
+        <div class="tweak-item">
+          <span class="tweak-badge badge-high">HIGH</span>
+          <div class="tweak-info">
+            <div class="tweak-name">1ms Timer Resolution</div>
+            <div class="tweak-detail">Drops the Windows timer tick from 15.6ms to 1ms. Finer OS scheduling means better frame pacing and lower input lag.</div>
+          </div>
+        </div>
+        <div class="tweak-item">
+          <span class="tweak-badge badge-extreme">EXTREME</span>
+          <div class="tweak-info">
+            <div class="tweak-name">Remove 20% Bandwidth Reservation</div>
+            <div class="tweak-detail">Windows secretly reserves 20% of your network for itself. This removes the restriction so you get your full internet speed.</div>
+          </div>
+        </div>
+        <div class="tweak-item">
+          <span class="tweak-badge badge-extreme">EXTREME</span>
+          <div class="tweak-info">
+            <div class="tweak-name">Kill Telemetry & Data Collection</div>
+            <div class="tweak-detail">Stops Microsoft's DiagTrack service and sets telemetry to 0. Your app usage, typing patterns, and activity are no longer sent to Microsoft.</div>
+          </div>
+        </div>
+        <div class="tweak-item">
+          <span class="tweak-badge badge-high">HIGH</span>
+          <div class="tweak-info">
+            <div class="tweak-name">Disable Mouse Acceleration</div>
+            <div class="tweak-detail">Enables true 1:1 raw mouse input. Essential for FPS games — your aim is now consistent regardless of how fast you move the mouse.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="showcase-visual">
+        <div class="showcase-window">
+          <div class="win-titlebar">
+            <div class="win-dot win-dot-r"></div>
+            <div class="win-dot win-dot-y"></div>
+            <div class="win-dot win-dot-g"></div>
+            <span class="win-title">◈ TURBOTWEAK — Performance</span>
+          </div>
+          <div class="win-body">
+            <div class="stat-row">
+              <div class="stat-box">
+                <div class="stat-val">32%</div>
+                <div class="stat-lbl">CPU Load</div>
+              </div>
+              <div class="stat-box amber">
+                <div class="stat-val">14</div>
+                <div class="stat-lbl">Tweaks Applied</div>
+              </div>
+              <div class="stat-box blue">
+                <div class="stat-val">7.2GB</div>
+                <div class="stat-lbl">RAM Free</div>
+              </div>
+              <div class="stat-box red">
+                <div class="stat-val">241GB</div>
+                <div class="stat-lbl">Disk Free</div>
+              </div>
+            </div>
+            <div class="fake-toggle-row">
+              <span class="fake-toggle-name">Ultimate Performance Power Plan</span>
+              <span class="fake-pill">ON</span>
+            </div>
+            <div class="fake-toggle-row">
+              <span class="fake-toggle-name">Disable CPU Core Parking</span>
+              <span class="fake-pill">ON</span>
+            </div>
+            <div class="fake-toggle-row">
+              <span class="fake-toggle-name">1ms Timer Resolution</span>
+              <span class="fake-pill">ON</span>
+            </div>
+            <div class="fake-toggle-row off">
+              <span class="fake-toggle-name">Spectre/Meltdown Mitigations</span>
+              <span class="fake-pill off">OFF</span>
+            </div>
+            <div class="fake-toggle-row off">
+              <span class="fake-toggle-name">Large System Cache</span>
+              <span class="fake-pill off">OFF</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── GAMING ── -->
+<section class="gaming" id="gaming">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-tag">Built for players</div>
+      <h2 class="section-title">Fortnite <span>Macros</span></h2>
+      <p class="section-sub">Dedicated macro tools built specifically for Fortnite. Edit faster. Build faster. React faster.</p>
+    </div>
+
+    <div class="gaming-grid reveal">
+      <div class="game-card">
+        <span class="game-card-icon">✏️</span>
+        <div class="game-card-title">EDIT MACRO</div>
+        <p class="game-card-desc">Spam your edit key faster than humanly possible. Set it to your Fortnite edit bind and watch your edit speed go through the roof. Spam, toggle, or double-tap modes.</p>
+        <span class="game-card-tag">EDIT FASTER</span>
+      </div>
+      <div class="game-card">
+        <span class="game-card-icon">🏗️</span>
+        <div class="game-card-title">BUILD MACRO</div>
+        <p class="game-card-desc">Assign your Wall, Floor, Ramp, and Cone keys then let the macro cycle through them at full speed. Box up in milliseconds. Never get out-built again.</p>
+        <span class="game-card-tag">BUILD FASTER</span>
+      </div>
+      <div class="game-card">
+        <span class="game-card-icon">🖱️</span>
+        <div class="game-card-title">DRAG CLICK</div>
+        <p class="game-card-desc">Rapid left or right click up to 200 APS. Place builds, fire weapons, or trigger actions faster than a normal click can. Jitter mode makes timing random so it looks human.</p>
+        <span class="game-card-tag">UP TO 200 APS</span>
+      </div>
+      <div class="game-card">
+        <span class="game-card-icon">⚙️</span>
+        <div class="game-card-title">SAVE PROFILES</div>
+        <p class="game-card-desc">Save your macro config as a named profile and load it with one click. Create different profiles for different games or situations and switch between them instantly.</p>
+        <span class="game-card-tag">PROFILES</span>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; padding:16px 20px; background:rgba(255,170,0,0.06); border-left:3px solid var(--amber); font-size:13px; color:var(--amber); font-family:'Share Tech Mono',monospace; letter-spacing:0.5px;" class="reveal">
+      ⚠ MACROS ARE FOUND UNDER "MALICIOUS" IN THE SIDEBAR — USE AT YOUR OWN RISK. MACROS MAY VIOLATE FORTNITE'S TERMS OF SERVICE.
+    </div>
+  </div>
+</section>
+
+<!-- ── INSTALL ── -->
+<section id="install">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-tag">Get started</div>
+      <h2 class="section-title">Up and Running<br><span>In 4 Steps</span></h2>
+      <p class="section-sub">No installer. No setup wizard. Just download and run.</p>
+    </div>
+
+    <div class="install-steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">DOWNLOAD</div>
+        <p class="step-desc">Download TurboTweak.exe from the button below. It's a single file — no installation required.</p>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">RUN AS ADMIN</div>
+        <p class="step-desc">Right-click the EXE and choose <strong>Run as Administrator</strong>. Required so tweaks can actually apply to your system.</p>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">INSTALL PYNPUT</div>
+        <p class="step-desc">For macros, open CMD as Admin and run:</p>
+        <code class="step-code">py -m pip install pynput</code>
+        <div class="step-arrow"></div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">START TWEAKING</div>
+        <p class="step-desc">Click any toggle to apply a tweak. Every one explains exactly what it does. Apply all at once or one by one.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; padding:16px 20px; background:rgba(56,189,248,0.05); border-left:3px solid var(--blue); font-size:13px; color:var(--blue); font-family:'Share Tech Mono',monospace;" class="reveal">
+      ℹ  WINDOWS 10 / 11 ONLY &nbsp;|&nbsp; PYTHON 3.10+ REQUIRED &nbsp;|&nbsp; SOME TWEAKS REQUIRE REBOOT TO TAKE FULL EFFECT
+    </div>
+  </div>
+</section>
+
+<!-- ── DOWNLOAD ── -->
+<section class="download" id="download">
+  <div class="container">
+    <div class="download-box reveal">
+      <span class="dl-icon">⬇</span>
+      <div class="dl-title">DOWNLOAD TURBOTWEAK</div>
+      <p class="dl-sub">Free. No account. No bloatware. Just the EXE.</p>
+      <a href="TurboTweak.exe" download class="btn-primary" style="font-size:17px; padding:18px 48px;">
+        ⬇ &nbsp; DOWNLOAD FREE
+      </a>
+      <div class="dl-meta">
+        <span><span class="dot">●</span> Windows 10/11</span>
+        <span><span class="dot">●</span> 100% Free</span>
+        <span><span class="dot">●</span> No Installer</span>
+        <span><span class="dot">●</span> Run as Admin</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">TURBO<span>TWEAK</span></div>
+  <div class="footer-warn">
+    ⚠ FOR EDUCATIONAL USE — USE MACROS AT YOUR OWN RISK
+  </div>
+  <div class="footer-copy">© 2025 TURBOTWEAK</div>
+</footer>
+
+<script>
+  // ── Scroll reveal ──
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+
+  // ── Animated counters ──
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.target);
+    if (!target) return;
+    let current = 0;
+    const step = Math.ceil(target / 40);
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current + (target === 200 ? '' : '+');
+      if (current >= target) {
+        el.textContent = target + (target < 100 ? '+' : target === 200 ? '' : '+');
+        clearInterval(timer);
+      }
+    }, 30);
+  }
+
+  const counterObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter(e.target);
+        counterObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('[data-target]').forEach(el => counterObs.observe(el));
+
+  // ── Smooth nav link active state ──
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#'+current
+        ? 'var(--accent)' : '';
+    });
+  });
+
+  // ── Cursor glow ──
+  const cursor = document.createElement('div');
+  cursor.style.cssText = `
+    position:fixed; pointer-events:none; z-index:9999;
+    width:300px; height:300px; border-radius:50%;
+    background:radial-gradient(circle, rgba(0,212,170,0.04) 0%, transparent 70%);
+    transform:translate(-50%,-50%);
+    transition:left 0.1s, top 0.1s;
+  `;
+  document.body.appendChild(cursor);
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+</script>
+</body>
+</html>
